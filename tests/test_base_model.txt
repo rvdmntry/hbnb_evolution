@@ -1,0 +1,17 @@
+>>> from models.base_model import BaseModel
+>>> bm = BaseModel()
+>>> bm.id is not None
+True
+>>> type(bm.id)
+<class 'str'>
+>>> bm.created_at is not None
+True
+>>> bm.updated_at is not None
+True
+>>> bm_dict = bm.to_dict()
+>>> bm_dict["__class__"]
+'BaseModel'
+>>> bm_dict["created_at"] == bm.created_at.isoformat()
+True
+>>> bm_dict["updated_at"] == bm.updated_at.isoformat()
+True
