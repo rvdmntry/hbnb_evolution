@@ -1,8 +1,10 @@
 #!/usr/bin/python3
-"""city"""
+"""
+City model module
+"""
 
+from models.base_model import BaseModel
 
-from model.base_model import BaseModel
 
 class City(BaseModel):
     def __init__(self, name, country_id, *args, **kwargs):

@@ -1,8 +1,10 @@
 #!/usr/bin/python3
-"""reviews"""
+"""
+Review model module
+"""
 
+from models.base_model import BaseModel
 
-from model.base_model import BaseModel
 
 class Review(BaseModel):
     def __init__(self, user_id, place_id, rating, comment, *args, **kwargs):

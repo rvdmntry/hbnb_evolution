@@ -1,8 +1,10 @@
 #!/usr/bin/python3
-"""country"""
+"""
+Country model module
+"""
 
+from models.base_model import BaseModel
 
-from model.base_model import BaseModel
 
 class Country(BaseModel):
     def __init__(self, name, *args, **kwargs):
