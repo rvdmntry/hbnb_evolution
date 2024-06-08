@@ -1,7 +1,6 @@
 import unittest
 from models.base_model import BaseModel
 from datetime import datetime
-import uuid
 
 
 class TestBaseModel(unittest.TestCase):
