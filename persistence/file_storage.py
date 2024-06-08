@@ -1,9 +1,11 @@
 #!/usr/bin/python3
-"""file storage"""
-
+"""
+File Storage module
+"""
 
 import json
 import os
+
 
 class FileStorage:
     __file_path = "file.json"
@@ -24,19 +26,3 @@ class FileStorage:
     @classmethod
     def get(cls, obj_id):
         return cls.__objects.get(obj_id)
-
-from persistence.file_storage import FileStorage
-
-class User(BaseModel):
-    users = {}
-
-    def __init__(self, email, password, first_name='', last_name='', *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if email in User.users:
-            raise ValueError("Email already exists")
-        self.email = email
-        self.password = password
-        self.first_name = first_name
-        self.last_name = last_name
-        User.users[email] = self
-        FileStorage.save(self)
