@@ -4,7 +4,8 @@ from models.user import User
 
 class TestUser(unittest.TestCase):
     def setUp(self):
-        User.users = {}  # Reset the users dictionary
+        # Reset the data manager's object store for isolation
+        User.data_manager.__objects = {}
         self.user = User(email="test@example.com", password="password123")
 
     def test_instance(self):
