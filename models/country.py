@@ -1,12 +1,12 @@
-#!/usr/bin/python3
-"""
-Country model module
-"""
+# models/country.py
 
-from models.base_model import BaseModel
-
-
-class Country(BaseModel):
-    def __init__(self, name, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class Country:
+    def __init__(self, code, name):
+        self.code = code
         self.name = name
+
+    def to_dict(self):
+        return {
+            'code': self.code,
+            'name': self.name
+        }
