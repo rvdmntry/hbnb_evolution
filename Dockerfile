@@ -1,23 +1,28 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.9-alpine
+# Start with an Alpine Linux base image with Python 3.8
+FROM python:3.8-alpine
 
-# Set the working directory in the container
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    APP_PORT=8000
+
+# Install dependencies
+RUN apk update && apk add --no-cache gcc musl-dev libffi-dev
+
+# Create and set the working directory
 WORKDIR /app
 
-# Copy the requirements.txt file into the container
+# Copy requirements file and install dependencies
 COPY requirements.txt /app/
-
-# Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the working directory contents into the container
-COPY . /app
+# Copy the rest of the application source code
+COPY . /app/
 
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Expose the application port
+EXPOSE $APP_PORT
 
-# Define environment variable
-ENV FLASK_APP=api.py
+# Define a volume for persistent storage
+VOLUME ["/app/data"]
 
-# Run the Flask app with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "api:app"]
+# Set the command to run the application with Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:${APP_PORT}", "wsgi:app"]
