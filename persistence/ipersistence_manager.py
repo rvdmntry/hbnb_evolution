@@ -1,8 +1,8 @@
-#!/usr/bin/python3
 """Persistence manager"""
 
 
 from abc import ABC, abstractmethod
+
 
 class IPersistenceManager(ABC):
     @abstractmethod

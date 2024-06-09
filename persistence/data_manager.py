@@ -1,10 +1,10 @@
-#!/usr/bin/python3
 """class Data Manager development"""
 
 
 import json
 import os
 from persistence.ipersistence_manager import IPersistenceManager
+
 
 class DataManager(IPersistenceManager):
     __file_path = "data.json"
