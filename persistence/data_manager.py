@@ -1,9 +1,14 @@
-"""class Data Manager development"""
-
-
 import json
 import os
-from persistence.ipersistence_manager import IPersistenceManager
+from uuid import uuid4
+from datetime import datetime
+from models.user import User
+from models.place import Place
+from models.city import City
+from models.country import Country
+from models.review import Review
+from models.amenity import Amenity
+from persistence.i_persistence_manager import IPersistenceManager
 
 
 class DataManager(IPersistenceManager):
@@ -11,42 +16,52 @@ class DataManager(IPersistenceManager):
     __objects = {}
 
     def __init__(self):
-        self.load()
+        self.reload()
 
     def save(self, entity):
-        """Save to the storage"""
-        entity_dict = entity.to_dict()
-        DataManager.__objects[entity_dict['id']] = entity_dict
-        self._save_to_file()
+        entity_id = entity.id
+        entity_type = entity.__class__.__name__
+        key = f"{entity_type}.{entity_id}"
+        self.__objects[key] = entity
+        self.__save_to_file()
 
     def get(self, entity_id, entity_type):
-        """Retrieve an entity based on ID and type"""
-        entity_dict = DataManager.__objects.get(entity_id)
-        if entity_dict and entity_dict['type'] == entity_type:
-            return entity_dict
-        return None
+        key = f"{entity_type}.{entity_id}"
+        return self.__objects.get(key, None)
 
     def update(self, entity):
-        """Update an entity in the storage"""
-        entity_dict = entity.to_dict()
-        if entity_dict['id'] in DataManager.__objects:
-            DataManager.__objects[entity_dict['id']] = entity_dict
-            self._save_to_file()
+        entity_id = entity.id
+        entity_type = entity.__class__.__name__
+        key = f"{entity_type}.{entity_id}"
+        if key in self.__objects:
+            self.__objects[key] = entity
+            self.__save_to_file()
 
     def delete(self, entity_id, entity_type):
-        """Delete an entity from the storage"""
-        entity_dict = DataManager.__objects.get(entity_id)
-        if entity_dict and entity_dict['type'] == entity_type:
-            del DataManager.__objects[entity_id]
-            self._save_to_file()
+        key = f"{entity_type}.{entity_id}"
+        if key in self.__objects:
+            del self.__objects[key]
+            self.__save_to_file()
 
-    def _save_to_file(self):
-        """Save the objects to a file"""
-        with open(DataManager.__file_path, 'w') as file:
-            json.dump(DataManager.__objects, file)
+    def __save_to_file(self):
+        with open(self.__file_path, 'w') as f:
+            json.dump({k: v.to_dict() for k, v in self.__objects.items()}, f)
 
-    def load(self):
-        """Load the objects from a file"""
-        if os.path.exists(DataManager.__file_path):
-            with open(DataManager.__file_path, 'r') as file:
-                DataManager.__objects = json.load(file)
+    def reload(self):
+        if os.path.exists(self.__file_path):
+            with open(self.__file_path, 'r') as f:
+                self.__objects = json.load(f)
+                for key, value in self.__objects.items():
+                    entity_type, entity_id = key.split('.')
+                    if entity_type == 'User':
+                        self.__objects[key] = User(**value)
+                    elif entity_type == 'Place':
+                        self.__objects[key] = Place(**value)
+                    elif entity_type == 'City':
+                        self.__objects[key] = City(**value)
+                    elif entity_type == 'Country':
+                        self.__objects[key] = Country(**value)
+                    elif entity_type == 'Review':
+                        self.__objects[key] = Review(**value)
+                    elif entity_type == 'Amenity':
+                        self.__objects[key] = Amenity(**value)
