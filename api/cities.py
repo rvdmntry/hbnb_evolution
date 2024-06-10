@@ -31,10 +31,8 @@ def create_city():
 
     city = City(name=data["name"], country_code=data["country_code"].upper())
     data_manager.save(city)
-
-
-return jsonify(city.to_dict()), 201
-return jsonify(city.to_dict()), 201
+    return jsonify(city.to_dict()), 201
+    return jsonify(city.to_dict()), 201
 
 # GET /cities: Retrieve all cities
 

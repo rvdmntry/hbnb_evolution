@@ -1,112 +1,117 @@
-from flask import Blueprint, request, jsonify
-from models.data_manager import DataManager
+from flask_restx import Namespace, Resource, fields
+from flask import request
+from persistence.data_manager import DataManager
 from models.place import Place
-from models.city import City
-from models.amenity import Amenity
-from models.user import User
 
-places_blueprint = Blueprint('places', __name__)
+api = Namespace('places', description='Place operations')
+
 data_manager = DataManager()
 
-# Validation functions
+place_model = api.model('Place', {
+    'id': fields.String(readOnly=True, description='The place unique identifier'),
+    'name': fields.String(required=True, description='The place name'),
+    'description': fields.String(required=True, description='The place description'),
+    'address': fields.String(required=True, description='The place address'),
+    'city_id': fields.String(required=True, description='The city identifier'),
+    'latitude': fields.Float(required=True, description='The place latitude'),
+    'longitude': fields.Float(required=True, description='The place longitude'),
+    'host_id': fields.String(required=True, description='The host identifier'),
+    'number_of_rooms': fields.Integer(required=True, description='The number of rooms'),
+    'number_of_bathrooms': fields.Integer(required=True, description='The number of bathrooms'),
+    'price_per_night': fields.Float(required=True, description='The price per night'),
+    'max_guests': fields.Integer(required=True, description='The maximum number of guests'),
+    'amenity_ids': fields.List(fields.String, required=True, description='The list of amenity identifiers'),
+    'created_at': fields.String(readOnly=True, description='The place creation date'),
+    'updated_at': fields.String(readOnly=True, description='The place update date')
+})
 
 
-def validate_place_payload(data):
-    required_fields = ["name", "description", "address", "city_id", "latitude", "longitude", "host_id",
-                       "number_of_rooms", "number_of_bathrooms", "price_per_night", "max_guests", "amenity_ids"]
-    for field in required_fields:
-        if field not in data:
-            return False, f"Missing required field: {field}"
+@api.route('/')
+class PlaceList(Resource):
+    @api.doc('list_places')
+    @api.marshal_list_with(place_model)
+    def get(self):
+        """List all places"""
+        places = data_manager.get_all('Place')
+        return places
 
-    if not isinstance(data["latitude"], (float, int)) or not (-90 <= data["latitude"] <= 90):
-        return False, "Invalid latitude value"
-    if not isinstance(data["longitude"], (float, int)) or not (-180 <= data["longitude"] <= 180):
-        return False, "Invalid longitude value"
-    if not isinstance(data["number_of_rooms"], int) or data["number_of_rooms"] < 0:
-        return False, "Invalid number of rooms"
-    if not isinstance(data["number_of_bathrooms"], int) or data["number_of_bathrooms"] < 0:
-        return False, "Invalid number of bathrooms"
-    if not isinstance(data["max_guests"], int) or data["max_guests"] < 0:
-        return False, "Invalid max guests"
-    if not isinstance(data["price_per_night"], (float, int)) or data["price_per_night"] < 0:
-        return False, "Invalid price per night"
+    @api.doc('create_place')
+    @api.expect(place_model)
+    @api.marshal_with(place_model, code=201)
+    def post(self):
+        """Create a new place"""
+        data = request.json
+        required_fields = ['name', 'description', 'address', 'city_id', 'latitude', 'longitude', 'host_id',
+                           'number_of_rooms', 'number_of_bathrooms', 'price_per_night', 'max_guests', 'amenity_ids']
 
-    if not data_manager.get(data["city_id"], City):
-        return False, "City ID does not exist"
-    if not data_manager.get(data["host_id"], User):
-        return False, "Host ID does not exist"
+        for field in required_fields:
+            if field not in data:
+                api.abort(400, f'{field} is required')
 
-    for amenity_id in data["amenity_ids"]:
-        if not data_manager.get(amenity_id, Amenity):
-            return False, f"Amenity ID {amenity_id} does not exist"
+        # Validate city_id
+        if not data_manager.find_by_id(data['city_id'], 'City'):
+            api.abort(400, 'Invalid city_id')
 
-    return True, ""
+        # Validate host_id
+        if not data_manager.find_by_id(data['host_id'], 'User'):
+            api.abort(400, 'Invalid host_id')
 
-# POST /places: Create a new place
+        # Validate amenity_ids
+        for amenity_id in data['amenity_ids']:
+            if not data_manager.find_by_id(amenity_id, 'Amenity'):
+                api.abort(400, f'Invalid amenity_id: {amenity_id}')
 
-
-@places_blueprint.route('/places', methods=['POST'])
-def create_place():
-    data = request.get_json()
-    is_valid, message = validate_place_payload(data)
-    if not is_valid:
-        return jsonify({"error": message}), 400
-
-    place = Place(**data)
-    data_manager.save(place)
-    return jsonify(place.to_dict()), 201
-
-# GET /places: Retrieve a list of all places
+        place = Place(**data)
+        data_manager.save(place)
+        return place, 201
 
 
-@places_blueprint.route('/places', methods=['GET'])
-def get_places():
-    places = [place.to_dict() for place in data_manager.get_all(Place)]
-    return jsonify(places), 200
+@api.route('/<string:id>')
+@api.response(404, 'Place not found')
+@api.param('id', 'The place identifier')
+class Place(Resource):
+    @api.doc('get_place')
+    @api.marshal_with(place_model)
+    def get(self, id):
+        """Fetch a place given its identifier"""
+        place = data_manager.get(id, 'Place')
+        if not place:
+            api.abort(404, 'Place not found')
+        return place
 
-# GET /places/<place_id>: Retrieve detailed information about a specific place
+    @api.doc('update_place')
+    @api.expect(place_model)
+    @api.marshal_with(place_model)
+    def put(self, id):
+        """Update a place given its identifier"""
+        data = request.json
+        place = data_manager.get(id, 'Place')
+        if not place:
+            api.abort(404, 'Place not found')
 
+        if 'city_id' in data and not data_manager.find_by_id(data['city_id'], 'City'):
+            api.abort(400, 'Invalid city_id')
 
-@places_blueprint.route('/places/<place_id>', methods=['GET'])
-def get_place(place_id):
-    place = data_manager.get(place_id, Place)
-    if place:
-        place_data = place.to_dict()
-        city = data_manager.get(place.city_id, City)
-        if city:
-            place_data["city"] = city.to_dict()
-        amenities = [data_manager.get(amenity_id, Amenity).to_dict()
-                     for amenity_id in place.amenity_ids]
-        place_data["amenities"] = amenities
-        return jsonify(place_data), 200
-    return jsonify({"error": "Place not found"}), 404
+        if 'host_id' in data and not data_manager.find_by_id(data['host_id'], 'User'):
+            api.abort(400, 'Invalid host_id')
 
-# PUT /places/<place_id>: Update an existing place’s information
+        if 'amenity_ids' in data:
+            for amenity_id in data['amenity_ids']:
+                if not data_manager.find_by_id(amenity_id, 'Amenity'):
+                    api.abort(400, f'Invalid amenity_id: {amenity_id}')
 
+        for key, value in data.items():
+            setattr(place, key, value)
 
-@places_blueprint.route('/places/<place_id>', methods=['PUT'])
-def update_place(place_id):
-    place = data_manager.get(place_id, Place)
-    if not place:
-        return jsonify({"error": "Place not found"}), 404
+        data_manager.update(place)
+        return place
 
-    data = request.get_json()
-    is_valid, message = validate_place_payload(data)
-    if not is_valid:
-        return jsonify({"error": message}), 400
-
-    place.update(**data)
-    data_manager.update(place)
-    return jsonify(place.to_dict()), 200
-
-# DELETE /places/<place_id>: Delete a specific place
-
-
-@places_blueprint.route('/places/<place_id>', methods=['DELETE'])
-def delete_place(place_id):
-    place = data_manager.get(place_id, Place)
-    if not place:
-        return jsonify({"error": "Place not found"}), 404
-
-    data_manager.delete(place_id, Place)
-    return '', 204
+    @api.doc('delete_place')
+    @api.response(204, 'Place deleted')
+    def delete(self, id):
+        """Delete a place given its identifier"""
+        place = data_manager.get(id, 'Place')
+        if not place:
+            api.abort(404, 'Place not found')
+        data_manager.delete(id, 'Place')
+        return '', 204
