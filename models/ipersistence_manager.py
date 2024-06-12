@@ -23,3 +23,4 @@ class IPersistenceManager(ABC):
     def delete(self, entity_id, entity_type):
         """Delete an entity from storage"""
         pass
+

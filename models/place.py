@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from models.base_model.py import BaseModel
+from models.base_model import BaseModel
 
 
 class Place(BaseModel):
