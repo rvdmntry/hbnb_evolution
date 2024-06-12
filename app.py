@@ -7,8 +7,11 @@ from models.amenity import Amenity
 from models.place import Place
 from models.user import User
 from models.review import Review
+from flask import Flask, jsonify, request, abort
 
 app = Flask(__name__)
+api = Api(app, version='1.0', title='HBnB API',
+          description='A simple API for HBnB application')
 api = Api(app, version='1.0', title='HBnB API',
           description='A simple API for HBnB application')
 
