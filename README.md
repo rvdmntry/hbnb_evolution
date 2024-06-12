@@ -103,26 +103,24 @@ The HBnB API is a RESTful web service for managing a platform similar to AirBnB.
 ## Running the Application
 
 1. **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    ```
+    bash
+    git clone <https://github.com/rvdmntry/holbertonschool-hbnb.git>
 
 2. **Navigate to the project directory**:
-    ```bash
+    bash
     cd hbnb-api
-    ```
 
-3. **Install dependencies**:
-    ```bash
+3.**Install dependencies**:
+    bash
     pip install -r requirements.txt
     ```
 
-4. **Run the application**:
-    ```bash
+4.**Run the application**:
+    bash
     python3 app.py
     ```
 
-5. **Access API documentation**:
+5.**Access API documentation**:
     Navigate to `http://localhost:5000/` to view the interactive API documentation.
 
 ## Running Tests
