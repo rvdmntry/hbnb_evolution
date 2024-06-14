@@ -1,56 +1,47 @@
 #!/usr/bin/python3
+
+
 import json
 import os
-from .ipersistence_manager import IPersistenceManager
-
+from models.ipersistence_manager import IPersistenceManager
 
 class DataManager(IPersistenceManager):
+    def __init__(self, storage_file='data.json'):
+        self.storage_file = storage_file
 
-    def __init__(self, storage_dir='data'):
-        self.storage_dir = storage_dir
-        os.makedirs(storage_dir, exist_ok=True)
-        self._load_countries()
+    def _load_data(self):
+        if not os.path.exists(self.storage_file):
+            return {}
+        with open(self.storage_file, 'r') as file:
+            return json.load(file)
 
-    def _load_countries(self):
-        with open(os.path.join(self.storage_dir, 'countries.json'), 'r') as file:
-            self.countries = json.load(file)
+    def _save_data(self, data):
+        with open(self.storage_file, 'w') as file:
+            json.dump(data, file)
 
     def save(self, entity):
-        entity_type = type(entity).__name__.lower()
-        entity_dict = entity.to_dict()
-        entity_id = entity_dict['id']
-        filepath = os.path.join(
-            self.storage_dir, f"{entity_type}s/{entity_id}.json")
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, 'w') as file:
-            json.dump(entity_dict, file)
+        data = self._load_data()
+        entity_type = entity.__class__.__name__
+        if entity_type not in data:
+            data[entity_type] = {}
+        data[entity_type][entity.id] = entity.to_dict()
+        self._save_data(data)
 
     def get(self, entity_id, entity_type):
-        entity_type = entity_type.lower()
-        filepath = os.path.join(
-            self.storage_dir, f"{entity_type}s/{entity_id}.json")
-        if not os.path.exists(filepath):
-            return None
-        with open(filepath, 'r') as file:
-            entity_dict = json.load(file)
-        return entity_dict
+        data = self._load_data()
+        if entity_type in data and entity_id in data[entity_type]:
+            return data[entity_type][entity_id]
+        return None
 
     def update(self, entity):
-        # For file-based storage, save and update are the same
-        self.save(entity)
+        self.save(entity)  # Save handles both create and update
 
     def delete(self, entity_id, entity_type):
-        entity_type = entity_type.lower()
-        filepath = os.path.join(
-            self.storage_dir, f"{entity_type}s/{entity_id}.json")
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        data = self._load_data()
+        if entity_type in data and entity_id in data[entity_type]:
+            del data[entity_type][entity_id]
+            self._save_data(data)
 
-    def get_all_countries(self):
-        return self.countries
-
-    def get_country(self, country_code):
-        for country in self.countries:
-            if country['code'] == country_code:
-                return country
-        return None
+    def get_all(self, entity_type):
+        data = self._load_data()
+        return list(data.get(entity_type, {}).values())
