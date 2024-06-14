@@ -126,7 +126,6 @@ The HBnB API is a RESTful web service for managing a platform similar to AirBnB.
 ## Running Tests
 
 To run the tests, use the following command:
-i
 ```bash
 python3 -m unittest discover -s tests
 
