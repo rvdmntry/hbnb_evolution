@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 
-from models import User
+from models.user import User
 
 class DataManager:
     def __init__(self):
