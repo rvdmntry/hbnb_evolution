@@ -1,25 +1,32 @@
 #!/usr/bin/python3
-from .base_model import BaseModel
 
 
-class User(BaseModel):
-    def __init__(self, email, password, first_name, last_name):
-        super().__init__()
+from datetime import datetime
+import uuid
+
+class User:
+    emails = set()
+
+    def __init__(self, email, first_name, last_name):
+        if email in User.emails:
+            raise ValueError("Email already exists")
+        self.id = uuid.uuid4()
         self.email = email
-        self.password = password
         self.first_name = first_name
         self.last_name = last_name
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+        User.emails.add(email)
 
-    def to_dict(self):
-        user_dict = super().to_dict()
-        user_dict.update({
-            'email': self.email,
-            'password': self.password,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-        })
-        return user_dict
-
-    def save(self):
-        super().save()
-        # Implement file-based persistence, e.g., saving to a JSON file
+    def update(self, first_name=None, last_name=None, email=None):
+        if email and email != self.email:
+            if email in User.emails:
+                raise ValueError("Email already exists")
+            User.emails.remove(self.email)
+            self.email = email
+            User.emails.add(email)
+        if first_name:
+            self.first_name = first_name
+        if last_name:
+            self.last_name = last_name
+        self.updated_at = datetime.now()

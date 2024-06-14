@@ -1,52 +1,26 @@
 #!/usr/bin/python3
-import os
-import json
-from .base_model import BaseModel
-from .data_manager import DataManager
-
-data_manager = DataManager()
 
 
-class Amenity(BaseModel):
+from datetime import datetime
+import uuid
+
+class Amenity:
+    amenity_names = set()
+
     def __init__(self, name):
-        super().__init__()
+        if name in Amenity.amenity_names:
+            raise ValueError("Amenity name already exists")
+        self.id = uuid.uuid4()
         self.name = name
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+        Amenity.amenity_names.add(name)
 
-    def to_dict(self):
-        amenity_dict = super().to_dict()
-        amenity_dict.update({
-            'name': self.name
-        })
-        return amenity_dict
-
-    def save(self):
-        data_manager.save(self)
-
-    @staticmethod
-    def get(amenity_id):
-        amenity_dict = data_manager.get(amenity_id, 'amenity')
-        if amenity_dict:
-            amenity = Amenity(name=amenity_dict['name'])
-            amenity.id = amenity_dict['id']
-            amenity.created_at = amenity_dict['created_at']
-            amenity.updated_at = amenity_dict['updated_at']
-            return amenity
-        return None
-
-    @staticmethod
-    def get_all():
-        amenities = []
-        amenity_files = os.listdir('data/amenities')
-        for amenity_file in amenity_files:
-            with open(os.path.join('data/amenities', amenity_file), 'r') as file:
-                amenity_dict = json.load(file)
-                amenity = Amenity(name=amenity_dict['name'])
-                amenity.id = amenity_dict['id']
-                amenity.created_at = amenity_dict['created_at']
-                amenity.updated_at = amenity_dict['updated_at']
-                amenities.append(amenity)
-        return amenities
-
-    @staticmethod
-    def delete(amenity_id):
-        data_manager.delete(amenity_id, 'amenity')
+    def update(self, name=None):
+        if name and name != self.name:
+            if name in Amenity.amenity_names:
+                raise ValueError("Amenity name already exists")
+            Amenity.amenity_names.remove(self.name)
+            self.name = name
+            Amenity.amenity_names.add(name)
+        self.updated_at = datetime.now()

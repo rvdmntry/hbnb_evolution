@@ -1,26 +1,21 @@
-# Use an Alpine Linux base image with Python 3.8
-FROM python:3.8-alpine
+# Usar Alpine Linux como base
+FROM python:3.9-alpine
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV APP_HOME=/app
-ENV PORT=8000
+# Establecer el directorio de trabajo
+WORKDIR /app
 
-# Create application directory
-WORKDIR $APP_HOME
-
-# Install dependencies
-COPY requirements.txt .
+# Copiar el archivo de requisitos y luego instalar las dependencias
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copiar el código de la aplicación
 COPY . .
 
-# Create a volume for persistent data storage
-VOLUME ["/app/data"]
+# Exponer el puerto en el que la aplicación estará escuchando
+EXPOSE 5000
 
-# Expose the port
-EXPOSE $PORT
+# Definir la variable de entorno para el puerto
+ENV FLASK_RUN_PORT=5000
 
-# Run the application with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "app:app"]
+# Configurar Gunicorn para ejecutar la aplicación
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]

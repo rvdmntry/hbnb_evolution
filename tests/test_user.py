@@ -1,33 +1,24 @@
 #!/usr/bin/python3
-import unittest
-from models.user import User
 
+
+import unittest
+from model.user.py import User
 
 class TestUser(unittest.TestCase):
 
+    def setUp(self):
+        User.emails = set()
+
     def test_user_creation(self):
-        user = User(email="test@example.com", password="password",
-                    first_name="Test", last_name="User")
+        user = User(email="test@example.com", first_name="John", last_name="Doe")
         self.assertEqual(user.email, "test@example.com")
-        self.assertEqual(user.password, "password")
-        self.assertEqual(user.first_name, "Test")
-        self.assertEqual(user.last_name, "User")
-        self.assertIsNotNone(user.id)
-        self.assertIsNotNone(user.created_at)
-        self.assertIsNotNone(user.updated_at)
+        self.assertEqual(user.first_name, "John")
+        self.assertEqual(user.last_name, "Doe")
 
-    def test_user_to_dict(self):
-        user = User(email="test@example.com", password="password",
-                    first_name="Test", last_name="User")
-        user_dict = user.to_dict()
-        self.assertEqual(user_dict['email'], "test@example.com")
-        self.assertEqual(user_dict['first_name'], "Test")
-        self.assertEqual(user_dict['last_name'], "User")
-        self.assertEqual(user_dict['password'], "password")
-        self.assertIsNotNone(user_dict['id'])
-        self.assertIsNotNone(user_dict['created_at'])
-        self.assertIsNotNone(user_dict['updated_at'])
+    def test_duplicate_email(self):
+        user1 = User(email="test@example.com", first_name="John", last_name="Doe")
+        with self.assertRaises(ValueError):
+            user2 = User(email="test@example.com", first_name="Jane", last_name="Doe")
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
