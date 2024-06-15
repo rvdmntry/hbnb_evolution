@@ -15,14 +15,20 @@ class TestReviewEndpoints(unittest.TestCase):
         }
         self.user_response = self.client.post(
             '/users', data=json.dumps(self.user_data), content_type='application/json')
-        self.user_id = self.user_response.json['id']
+        self.user_id = self.user_response.json.get('id')
+        if self.user_id is None:
+            raise KeyError("Response JSON does not contain 'id'")
+        
         self.city_data = {
             'name': 'Test City',
             'country_code': 'US'
         }
         self.city_response = self.client.post(
             '/cities', data=json.dumps(self.city_data), content_type='application/json')
-        self.city_id = self.city_response.json['id']
+        self.city_id = self.city_response.json.get('id')
+        if self.city_id is None:
+            raise KeyError("Response JSON does not contain 'id'")
+        
         self.place_data = {
             'name': 'Test Place',
             'description': 'A place for testing',
@@ -39,7 +45,10 @@ class TestReviewEndpoints(unittest.TestCase):
         }
         self.place_response = self.client.post(
             '/places', data=json.dumps(self.place_data), content_type='application/json')
-        self.place_id = self.place_response.json['id']
+        self.place_id = self.place_response.json.get('id')
+        if self.place_id is None:
+            raise KeyError("Response JSON does not contain 'id'")
+        
         self.review_data = {
             'user_id': self.user_id,
             'rating': 5,

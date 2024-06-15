@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-
 from flask import Flask, request, jsonify, make_response
 from models.amenity import Amenity
 from persistence.data_manager import DataManager
@@ -17,21 +16,21 @@ def create_amenity():
     try:
         amenity = Amenity(name=data["name"])
         data_manager.save(amenity)
-        return make_response(jsonify(amenity.__dict__), 201)
+        return make_response(jsonify(amenity.to_dict()), 201)
     except ValueError as e:
         return make_response(jsonify({"error": str(e)}), 409)
 
 @app.route('/amenities', methods=['GET'])
 def get_amenities():
-    amenities = list(data_manager.storage["Amenity"].values())
-    return jsonify([amenity.__dict__ for amenity in amenities])
+    amenities = data_manager.get_all("Amenity")
+    return jsonify([amenity.to_dict() for amenity in amenities])
 
 @app.route('/amenities/<amenity_id>', methods=['GET'])
 def get_amenity(amenity_id):
     amenity = data_manager.get(amenity_id, "Amenity")
     if amenity is None:
         return make_response(jsonify({"error": "Amenity not found"}), 404)
-    return jsonify(amenity.__dict__)
+    return jsonify(amenity.to_dict())
 
 @app.route('/amenities/<amenity_id>', methods=['PUT'])
 def update_amenity(amenity_id):
@@ -46,7 +45,7 @@ def update_amenity(amenity_id):
     try:
         amenity.update(name=data.get("name"))
         data_manager.update(amenity)
-        return jsonify(amenity.__dict__)
+        return jsonify(amenity.to_dict())
     except ValueError as e:
         return make_response(jsonify({"error": str(e)}), 409)
 

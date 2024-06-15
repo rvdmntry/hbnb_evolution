@@ -42,3 +42,14 @@ class City:
                 raise ValueError("City name must be unique within the same country")
             City.city_names[country_code].add(self.name)
         self.updated_at = datetime.now()
+
+class Country:
+    def __init__(self, code, name):
+        self.code = code
+        self.name = name
+
+    def to_dict(self):
+        return {
+            'code': self.code,
+            'name': self.name
+        }

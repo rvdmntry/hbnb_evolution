@@ -1,0 +1,57 @@
+{
+    "User": {},
+    "Country": {
+        "US": {
+            "code": "US",
+            "name": "United States"
+        },
+        "CA": {
+            "code": "CA",
+            "name": "Canada"
+        }
+    },
+    "City": {
+        "7197dbd8-91b4-4003-8b8a-dc8dbcff63d2": {
+            "id": "0444d9ba-c8a0-4841-a5b6-db9369fb9e81",
+            "name": "San Francisco",
+            "country_code": "US",
+            "created_at": "2024-06-15T00:29:56.724627",
+            "updated_at": "2024-06-15T00:29:56.724634"
+        },
+        "3ada8ccf-e803-4696-8d8c-dd25aa664b57": {
+            "id": "bb753eb7-5e58-4415-a066-9c90fdd95a8c",
+            "name": "New York",
+            "country_code": "US",
+            "created_at": "2024-06-15T00:29:56.724639",
+            "updated_at": "2024-06-15T00:29:56.724639"
+        },
+        "e32fc328-4205-40fc-b566-9ef7db933d2f": {
+            "id": "b2825878-893a-49ee-9366-f97baaeb0d90",
+            "name": "Los Angeles Updated",
+            "country_code": "US",
+            "created_at": "2024-06-15T00:29:56.724644",
+            "updated_at": "2024-06-15T00:29:56.724644"
+        }
+    },
+    "Amenity": {
+        "c3042d094dfc46cb80af0fc38f3f1ef3": {
+            "id": "c3042d094dfc46cb80af0fc38f3f1ef3",
+            "name": "WiFi",
+            "created_at": "2024-06-15T00:29:56.728787",
+            "updated_at": "2024-06-15T00:29:56.728790"
+        },
+        "7950df7e0f584297a78538dcd8980238": {
+            "id": "7950df7e0f584297a78538dcd8980238",
+            "name": "Pool",
+            "created_at": "2024-06-15T00:29:56.761949",
+            "updated_at": "2024-06-15T00:29:56.761957"
+        },
+        "cfaecf468b6647eab78b7d2e3f0c9b98": {
+            "id": "cfaecf468b6647eab78b7d2e3f0c9b98",
+            "name": "Fitness Center",
+            "created_at": "2024-06-15T00:29:56.763539",
+            "updated_at": "2024-06-15T00:29:56.764504"
+        }
+    },
+    "Place": {}
+}

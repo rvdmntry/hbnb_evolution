@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-
 from flask import Flask, request, jsonify
 from models.data_manager import DataManager
 from models.user import User
@@ -9,6 +8,7 @@ from models.city import City
 from models.country import Country
 from models.review import Review
 from flask_restx import Api, Resource, fields
+from datetime import datetime
 
 app = Flask(__name__)
 api = Api(app, version='1.0', title='HBnB Evolution API', description='A simple HBnB Evolution API')
@@ -52,7 +52,7 @@ class UserList(Resource):
         return user.to_dict(), 201
 
 @api.route('/users/<string:user_id>')
-class User(Resource):
+class UserResource(Resource):
     @api.doc('get_user')
     @api.marshal_with(user_model)
     def get(self, user_id):
@@ -80,11 +80,10 @@ class User(Resource):
         if not user:
             api.abort(404, "User not found")
 
-        user['email'] = email
-        user['first_name'] = first_name
-        user['last_name'] = last_name
-        data_manager.update(User(**user))
-        return user, 200
+        user_obj = User(**user)
+        user_obj.update(first_name=first_name, last_name=last_name, email=email)
+        data_manager.update(user_obj)
+        return user_obj.to_dict(), 200
 
     @api.doc('delete_user')
     def delete(self, user_id):

@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-
 from datetime import datetime
 import uuid
 
@@ -10,7 +9,7 @@ class User:
     def __init__(self, email, first_name, last_name):
         if email in User.emails:
             raise ValueError("Email already exists")
-        self.id = uuid.uuid4()
+        self.id = str(uuid.uuid4())  # Ensure the ID is a string
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
@@ -30,3 +29,17 @@ class User:
         if last_name:
             self.last_name = last_name
         self.updated_at = datetime.now()
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'created_at': self.created_at.isoformat(),  # Serialize datetime to string
+            'updated_at': self.updated_at.isoformat()   # Serialize datetime to string
+        }
+
+    @classmethod
+    def clear_emails(cls):
+        cls.emails.clear()
