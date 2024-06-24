@@ -35,7 +35,7 @@ class DataManager:
                             )
                         elif entity_type == "Country":
                             self.storage[entity_type][entity_id] = Country(
-                                code=entity_data.get('code'),
+                                code=entity_id,  # Use entity_id as code for Country
                                 name=entity_data.get('name')
                             )
                         elif entity_type == "City":
@@ -94,7 +94,7 @@ class DataManager:
         self.storage[entity_type][entity_id] = entity
         self._save_data()
 
-    def delete(self, entity_id, entity_type):
+    def delete(self, entity_type, entity_id):
         if entity_id in self.storage[entity_type]:
             del self.storage[entity_type][entity_id]
             self._save_data()
